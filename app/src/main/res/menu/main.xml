@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_info"
+        android:orderInCategory="100"
+        android:icon="@mipmap/ic_info_white_24dp"
+        android:title="Information"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="200"
+        android:icon="@mipmap/ic_settings_white_24dp"
+        android:title="@string/action_settings"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/extras"
+        android:orderInCategory="300"
+        android:icon="@mipmap/ic_settings_white_24dp"
+        android:title="DB functions"
+        app:showAsAction="never" />
+</menu>

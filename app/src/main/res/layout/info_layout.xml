@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="30dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Total Public RAM available" />
+
+        <pl.pawelkleczkowski.customgauge.CustomGauge
+            android:id="@+id/stats_ram_gauge"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp"
+            app:gaugeEndValue="1000"
+            app:gaugePointEndColor="@android:color/holo_blue_light"
+            app:gaugePointSize="6"
+            app:gaugePointStartColor="@android:color/holo_blue_dark"
+            app:gaugeStartAngle="135"
+            app:gaugeStartValue="0"
+            app:gaugeStrokeCap="ROUND"
+            app:gaugeStrokeColor="@android:color/darker_gray"
+            app:gaugeStrokeWidth="8dp"
+            app:gaugeSweepAngle="270" />
+
+        <TextView
+            android:id="@+id/stats_ram_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:hint="some text" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="30dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Total Public Storage available" />
+
+        <pl.pawelkleczkowski.customgauge.CustomGauge
+            android:id="@+id/stats_storage_gauge"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="10dp"
+            app:gaugeEndValue="1000"
+            app:gaugePointEndColor="@color/color2"
+            app:gaugePointSize="6"
+            app:gaugePointStartColor="@color/color1"
+            app:gaugeStartAngle="135"
+            app:gaugeStartValue="0"
+            app:gaugeStrokeCap="ROUND"
+            app:gaugeStrokeColor="@android:color/darker_gray"
+            app:gaugeStrokeWidth="8dp"
+            app:gaugeSweepAngle="270" />
+
+        <TextView
+            android:id="@+id/stats_storage_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:hint="some text" />
+
+    </LinearLayout>
+
+</LinearLayout>
