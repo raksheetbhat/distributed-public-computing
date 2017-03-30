@@ -41,6 +41,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_TASK_DATA = "data";
     private static final String KEY_TASK_STATUS = "status";
     private static final String KEY_TASK_COMPLEXITY = "complexity";
+    private static final String KEY_TASK_SERVER_SENT = "server_sent";
 
     //create statements
     private String CREATE_STORAGE_TABLE = "CREATE TABLE " + TABLE_STORAGE + "( " +
@@ -51,7 +52,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private String CREATE_TASK_TABLE = "CREATE TABLE " + TABLE_TASK + "( " +
             KEY_TASK_ID + " INTEGER PRIMARY KEY, " + KEY_TASK_CODE + " TEXT, " +
-            KEY_TASK_DATA + " TEXT, " + KEY_TASK_STATUS + " INTEGER, " + KEY_TASK_COMPLEXITY + " REAL);";
+            KEY_TASK_DATA + " TEXT, " + KEY_TASK_STATUS + " INTEGER, "
+            + KEY_TASK_COMPLEXITY + " REAL, " + KEY_TASK_SERVER_SENT + " INTEGER);";
 
     public DatabaseHandler(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
@@ -167,11 +169,12 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_TASK_ID, task.getTaskID());
         values.put(KEY_TASK_CODE, task.getCode());
         values.put(KEY_TASK_DATA, task.getData());
-        values.put(KEY_TASK_STATUS, task.getTaskID());
+        values.put(KEY_TASK_STATUS, 0);
         values.put(KEY_TASK_COMPLEXITY, task.getComplexity());
+        values.put(KEY_TASK_SERVER_SENT, task.getSentToServer());
 
         // Inserting Row
-        db.insert(TABLE_TASK, null, values);
+        db.replace(TABLE_TASK, null, values);
         db.close(); // Closing database connection
     }
 
@@ -179,7 +182,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_TASK, new String[] { KEY_TASK_ID,
-                        KEY_TASK_CODE,KEY_TASK_DATA, KEY_TASK_STATUS, KEY_TASK_COMPLEXITY}, KEY_TASK_ID + "=?",
+                        KEY_TASK_CODE,KEY_TASK_DATA, KEY_TASK_STATUS, KEY_TASK_COMPLEXITY, KEY_TASK_SERVER_SENT}
+                , KEY_TASK_ID + "=?",
                 new String[] { String.valueOf(taskID) }, null, null, null, null);
         if (cursor != null)
             cursor.moveToFirst();
@@ -187,14 +191,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         // return contact
         return new TaskMaster(Integer.parseInt(cursor.getString(0)),
                cursor.getString(1),cursor.getString(2) ,Integer.parseInt(cursor.getString(3)),
-                Float.parseFloat(cursor.getString(4)));
+                Float.parseFloat(cursor.getString(4)),Integer.parseInt(cursor.getString(5)));
     }
 
     public TaskMaster fetchMaxTask(){
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(TABLE_TASK, new String[] { KEY_TASK_ID,
-                        KEY_TASK_CODE,KEY_TASK_DATA, KEY_TASK_STATUS, KEY_TASK_COMPLEXITY}, KEY_TASK_STATUS + "=?",
+                        KEY_TASK_CODE,KEY_TASK_DATA, KEY_TASK_STATUS, KEY_TASK_COMPLEXITY,KEY_TASK_SERVER_SENT}
+                , KEY_TASK_STATUS + "=? AND "+KEY_TASK_SERVER_SENT+"= 0",
                 new String[] { String.valueOf(0) }, null, null, KEY_TASK_COMPLEXITY+" DESC", "1");
         if (cursor != null)
             cursor.moveToFirst();
@@ -204,7 +209,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             // return contact
             return new TaskMaster(Integer.parseInt(cursor.getString(0)),
                     cursor.getString(1),cursor.getString(2) ,Integer.parseInt(cursor.getString(3)),
-                    Float.parseFloat(cursor.getString(4)));
+                    Float.parseFloat(cursor.getString(4)),Integer.parseInt(cursor.getString(5)));
         }
         return null;
     }
@@ -226,6 +231,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 contact.setData(cursor.getString(2));
                 contact.setStatus(Integer.parseInt(cursor.getString(3)));
                 contact.setComplexity(Float.parseFloat(cursor.getString(4)));
+                contact.setSentToServer(Integer.parseInt(cursor.getString(5)));
                 // Adding contact to list
                 tasksList.add(contact);
             } while (cursor.moveToNext());
@@ -253,6 +259,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(KEY_TASK_DATA, task.getData());
         values.put(KEY_TASK_STATUS, task.getStatus());
         values.put(KEY_TASK_COMPLEXITY, task.getComplexity());
+        values.put(KEY_TASK_SERVER_SENT, task.getSentToServer());
 
         // updating row
         return db.update(TABLE_TASK, values, KEY_TASK_ID + " = ?",

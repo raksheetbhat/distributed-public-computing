@@ -10,17 +10,27 @@ public class TaskMaster {
     String data;
     int status;
     float complexity;
+    int sentToServer;
 
-    public TaskMaster(int taskID, String code, String data, int status, float complexity) {
+    public TaskMaster(int taskID, String code, String data, int status, float complexity,int sentToServer) {
         this.taskID = taskID;
         this.code = code;
         this.data = data;
         this.status = status;
         this.complexity = complexity;
+        this.sentToServer = sentToServer;
     }
 
     public TaskMaster() {
 
+    }
+
+    public int getSentToServer() {
+        return sentToServer;
+    }
+
+    public void setSentToServer(int sentToServer) {
+        this.sentToServer = sentToServer;
     }
 
     public int getTaskID() {

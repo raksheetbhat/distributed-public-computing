@@ -5,6 +5,6 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    <string name="server_url">10.50.47.168</string>
+    <string name="server_url">10.50.47.147</string>
     <string name="internal_storage">internal storage</string>
 </resources>

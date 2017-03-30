@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.example.raksheet.majorproject.Database.DatabaseHandler;
 import com.example.raksheet.majorproject.FileFunctions.FileUtils;
+import com.example.raksheet.majorproject.Process.BeanService;
 import com.example.raksheet.majorproject.R;
 
 import org.apache.http.HttpEntity;
@@ -50,7 +51,7 @@ public class StorageActivity extends AppCompatActivity {
     private static final int READ_REQUEST_CODE = 2;
     private static final boolean DEBUG = FALSE;
     ImageView uploadImage;
-    private String server = "http://"+R.string.server_url+":8080/DisCo/FileUpload";
+    private String server = "http://"+ BeanService.server_url+":8080/DisCo/FileUpload";
     private ProgressDialog fileUploadProgress;
 
     @Override

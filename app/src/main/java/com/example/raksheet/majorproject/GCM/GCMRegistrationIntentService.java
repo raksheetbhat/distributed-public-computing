@@ -12,6 +12,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.raksheet.majorproject.Process.BeanService;
 import com.example.raksheet.majorproject.R;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
@@ -33,7 +34,7 @@ public class GCMRegistrationIntentService extends IntentService {
     //Constants for success and errors
     public static final String REGISTRATION_SUCCESS = "RegistrationSuccess";
     public static final String REGISTRATION_ERROR = "RegistrationError";
-    private String server = "http://"+R.string.server_url+":8080/DisCo/UpdateGCM";
+    private String server = "http://"+ BeanService.server_url+":8080/DisCo/UpdateGCM";
 
     //Class constructor
     public GCMRegistrationIntentService() {

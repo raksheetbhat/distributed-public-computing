@@ -16,6 +16,7 @@ import android.util.Log;
 
 import com.example.raksheet.majorproject.Database.DatabaseHandler;
 import com.example.raksheet.majorproject.MainActivity;
+import com.example.raksheet.majorproject.Process.BeanService;
 import com.example.raksheet.majorproject.Process.ClientTask;
 import com.example.raksheet.majorproject.Process.TaskClass;
 import com.example.raksheet.majorproject.Process.TaskMaster;
@@ -129,10 +130,12 @@ public class GCMPushReceiverService extends GcmListenerService {
                     Log.i("Databasehandler", "writing to database");
                     for(ClientTask clientTask : clientsArray){
                         TaskMaster taskMaster = new TaskMaster(clientTask.getTaskID(),
-                                clientTask.getCode(),path,0,clientTask.getComplexity());
+                                clientTask.getCode(),path,0,clientTask.getComplexity(),0);
                         databaseHandler.addTask(taskMaster);
                     }
                     databaseHandler.close();
+
+                    startService(new Intent(this, BeanService.class));
 
                     //start the other service to run the tasks
                     DatabaseHandler db = new DatabaseHandler(getApplication());
@@ -217,7 +220,7 @@ public class GCMPushReceiverService extends GcmListenerService {
 
             // Output stream to write file
             String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-            String filePath = baseDir + File.separator + taskID + ".csv";
+            String filePath = baseDir + File.separator + taskID + "_original.csv";
             OutputStream output = new FileOutputStream(filePath);
 
             finalFilePath = filePath;

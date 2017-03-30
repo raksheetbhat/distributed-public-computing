@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -20,15 +23,22 @@ import android.widget.Toast;
 
 import com.example.raksheet.majorproject.Database.DatabaseHandler;
 import com.example.raksheet.majorproject.R;
+import com.example.raksheet.majorproject.Storage.StorageActivity;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,28 +58,33 @@ import static com.example.raksheet.majorproject.GCM.GCMPushReceiverService.SERVE
  * Created by Raksheet on 21-02-2017.
  */
 
-public class BeanService extends Service {
+public class BeanService extends IntentService {
+
+    public static String server_url = "10.50.47.147";
 
     private String javaCode;
     private final static Interpreter interpreter = new Interpreter();
+    private String server = "http://"+server_url+":8080/DisCo/UpdateTask";
+
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
      * @param name Used to name the worker thread, important only for debugging.
      */
     public BeanService(String name) {
-
+        super(name);
     }
 
     public BeanService(){
-
+        super("");
     }
 
-    private void initBeanshell(String path) {
+    private void initBeanshell(String readPath,String writePath) {
         try {
             interpreter.set("context", getApplication());//set any variable, you can refer to it directly from string
             //interpreter.set("rootView", findViewById(android.R.id.content));
-            interpreter.set("path",path);
+            interpreter.set("read_path",readPath);
+            interpreter.set("write_path",writePath);
             //interpreter.set("button", findViewById(R.id.buttonRun));
             if (interpreter.get("portnum") == null) { // server not set
                 interpreter.set("portnum", 1234);
@@ -104,32 +119,41 @@ public class BeanService extends Service {
         return null;
     }
 
-    @Override
-    public int onStartCommand(final Intent intent, final int flags,
-                              final int startId) {
-        //your code
-        try {
-            DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
-            TaskMaster task = databaseHandler.fetchMaxTask();
-            String code = task.getCode();
-            String path = task.getData();
-
-            initBeanshell(path);
-            String result = runString(code);
-
-            System.out.println("result: "+result);
-
-            task.setStatus(1);
-            task.setData(result);
-            task.setCode(code);
-            databaseHandler.updateTask(task);
-            databaseHandler.close();
-        }catch(NullPointerException e){
-            e.printStackTrace();
-        }
-
-        return START_STICKY;
-    }
+//    @Override
+//    public int onStartCommand(final Intent intent, final int flags,
+//                              final int startId) {
+//        //your code
+//        System.out.println("bean service started");
+//        try {
+//            DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
+//            TaskMaster task = databaseHandler.fetchMaxTask();
+//            //TaskMaster task = databaseHandler.getAllTasks().get(0);
+//            System.out.println("task: "+task);
+//            if(task!=null) {
+//                String code = task.getCode();
+//                String readPath = task.getData();
+//
+//                System.out.println("code: "+code);
+//
+//                String writePath = task.getTaskID() + "_changed.csv";
+//
+//                initBeanshell(readPath, writePath);
+//                String result = runString(code);
+//
+//                System.out.println("result: " + result);
+//
+//                task.setStatus(1);
+//                task.setData(result);
+//                task.setCode(code);
+//                databaseHandler.updateTask(task);
+//                databaseHandler.close();
+//            }
+//        }catch(NullPointerException e){
+//            e.printStackTrace();
+//        }
+//
+//        return START_STICKY;
+//    }
 
     @Nullable
     @Override
@@ -151,47 +175,102 @@ public class BeanService extends Service {
         super.onTaskRemoved(rootIntent);
     }
 
-
-
     @Override
     public void onCreate() {
         super.onCreate();
     }
 
-//    @Override
-//    protected void onHandleIntent(Intent intent) {
-////        String javaCode = "import android.widget.Toast; \n" +
-////                "import android.support.design.widget.Snackbar;\n " +
-////                "import android.view.View;\n" +
-////                "import android.view.View.OnClickListener; \n" +
-////                "return s";
-////
-////        String jCode = "for(t:tasks){\n"+
-////                "print(t.code + \" \" + t.data);}";
-////
-////        TaskClass t1 = new TaskClass("data1","code1");
-////        TaskClass t2 = new TaskClass("data2","code2");
-////        TaskClass t3 = new TaskClass("data3","code3");
-////
-////        initBeanshell(Arrays.asList(t1,t2,t3));
-////        runString(jCode);
+    @Override
+    protected void onHandleIntent(Intent intent) {
+//        String javaCode = "import android.widget.Toast; \n" +
+//                "import android.support.design.widget.Snackbar;\n " +
+//                "import android.view.View;\n" +
+//                "import android.view.View.OnClickListener; \n" +
+//                "return s";
 //
-//        try {
-//            DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
-//            TaskMaster task = databaseHandler.fetchMaxTask();
-//            String code = task.getCode();
-//            String path = task.getData();
+//        String jCode = "for(t:tasks){\n"+
+//                "print(t.code + \" \" + t.data);}";
 //
-//            initBeanshell(path);
-//            String result = runString(code);
+//        TaskClass t1 = new TaskClass("data1","code1");
+//        TaskClass t2 = new TaskClass("data2","code2");
+//        TaskClass t3 = new TaskClass("data3","code3");
 //
-//            task.setStatus(1);
-//            task.setData(result);
-//            task.setCode(code);
-//            databaseHandler.updateTask(task);
-//            databaseHandler.close();
-//        }catch(NullPointerException e){
-//            e.printStackTrace();
-//        }
-//    }
+//        initBeanshell(Arrays.asList(t1,t2,t3));
+//        runString(jCode);
+
+        System.out.println("bean service started");
+        try {
+            DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
+            TaskMaster task = databaseHandler.fetchMaxTask();
+            //TaskMaster task = null;
+//            if(databaseHandler.getAllTasks()!=null && databaseHandler.getAllTasks().size()>0)
+//                task = databaseHandler.getAllTasks().get(0);
+            System.out.println("task: "+task);
+            if(task!=null) {
+                String code = task.getCode();
+                String readPath = task.getData();
+
+                System.out.println("code: "+code);
+
+                String baseDir = Environment.getExternalStorageDirectory().getAbsolutePath();
+                String filePath = baseDir + File.separator + task.getTaskID() + "_changed.csv";
+
+                File file = new File(filePath);
+                if (!file.exists()) {
+                    try {
+                        file.createNewFile();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                String writePath = filePath;
+
+                initBeanshell(readPath, writePath);
+                String result = runString(code);
+
+                System.out.println("result: " + result);
+
+                //write to db
+                task.setStatus(1);
+                task.setData(writePath);
+                task.setCode(code);
+                databaseHandler.updateTask(task);
+                databaseHandler.close();
+
+                //send results back to server
+                System.out.println("sending result to server: "+writePath);
+                postData(new File(writePath),String.valueOf(task.getTaskID()));
+            }
+        }catch(NullPointerException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void postData(File file,String taskID){
+        try
+        {
+            System.out.println("url: "+server);
+            HttpClient client = new DefaultHttpClient();
+            HttpPost post = new HttpPost(server);
+
+            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+            entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            entityBuilder.addBinaryBody("uploadfile", file);
+            entityBuilder.addPart("taskID",new StringBody(taskID, ContentType.TEXT_PLAIN));
+
+            HttpEntity entity = entityBuilder.build();
+            post.setEntity(entity);
+
+            HttpResponse response = client.execute(post);
+            HttpEntity httpEntity = response.getEntity();
+
+            String result = EntityUtils.toString(httpEntity);
+            Log.v("post result", result);
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
 }
