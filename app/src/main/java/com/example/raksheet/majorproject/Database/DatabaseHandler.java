@@ -214,6 +214,44 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return null;
     }
 
+    public List<TaskMaster> fetchRemainingTasks(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        List<TaskMaster> results = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_TASK + " WHERE " + KEY_TASK_SERVER_SENT + " = 0;";
+
+        Cursor cursor = db.rawQuery(query,null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if(cursor.getCount() > 0)
+        {
+            // return contact
+            results.add(new TaskMaster(Integer.parseInt(cursor.getString(0)),
+                    cursor.getString(1),cursor.getString(2) ,Integer.parseInt(cursor.getString(3)),
+                    Float.parseFloat(cursor.getString(4)),Integer.parseInt(cursor.getString(5))));
+        }
+        cursor.close();
+        return results;
+    }
+
+    public int countRemainingTasks(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT COUNT(*) FROM " + TABLE_TASK + " WHERE " + KEY_TASK_STATUS + " = 0;";
+
+        Cursor cursor = db.rawQuery(query,null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if(cursor.getCount() > 0)
+        {
+            return Integer.parseInt(cursor.getString(0));
+        }
+        cursor.close();
+        return 0;
+    }
+
     public List<TaskMaster> getAllTasks(){
         List<TaskMaster> tasksList = new ArrayList<>();
         // Select All Query

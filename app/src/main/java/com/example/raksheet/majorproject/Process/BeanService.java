@@ -9,6 +9,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -39,6 +41,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -245,6 +248,27 @@ public class BeanService extends IntentService {
         }catch(NullPointerException e){
             e.printStackTrace();
         }
+
+        try{
+            //fetch tasks not sent to server and send
+            DatabaseHandler db = new DatabaseHandler(this);
+            List<TaskMaster> tasksUnsent = db.fetchRemainingTasks();
+            if(tasksUnsent!=null && tasksUnsent.size()>0 && isNetworkAvailable()){
+                for(TaskMaster taskMaster : tasksUnsent){
+                    postData(new File(taskMaster.getData()),String.valueOf(taskMaster.getTaskID()));
+                }
+            }
+            db.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     public void postData(File file,String taskID){
@@ -267,6 +291,16 @@ public class BeanService extends IntentService {
 
             String result = EntityUtils.toString(httpEntity);
             Log.v("post result", result);
+            JSONObject res = new JSONObject(result);
+            boolean sent = res.getBoolean("result");
+            if(sent){
+                //success
+                DatabaseHandler db = new DatabaseHandler(this);
+                TaskMaster taskMaster = db.getTask(Integer.parseInt(taskID));
+                taskMaster.setSentToServer(1);
+                db.updateTask(taskMaster);
+                db.close();
+            }
         }
         catch(Exception e)
         {

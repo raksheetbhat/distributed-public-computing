@@ -30,6 +30,8 @@ import org.apache.http.util.EntityUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.raksheet.majorproject.Login.RegisterActivity.USER_REGISTRATION;
+
 public class GCMRegistrationIntentService extends IntentService {
     //Constants for success and errors
     public static final String REGISTRATION_SUCCESS = "RegistrationSuccess";
@@ -96,10 +98,13 @@ public class GCMRegistrationIntentService extends IntentService {
             HttpClient httpclient = new DefaultHttpClient();
             HttpPost httppost = new HttpPost(server);
 
+            SharedPreferences prefs = getSharedPreferences(USER_REGISTRATION,MODE_PRIVATE);
+            String deviceID = String.valueOf(prefs.getInt("deviceID",0));
+
             try {
                 // Add your data
                 List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                nameValuePairs.add(new BasicNameValuePair("deviceID", "1"));
+                nameValuePairs.add(new BasicNameValuePair("deviceID", deviceID));
                 nameValuePairs.add(new BasicNameValuePair("GCMID", token));
                 httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
                 //httppost.setHeader("Content-Type", "application/x-www-form-urlencoded");

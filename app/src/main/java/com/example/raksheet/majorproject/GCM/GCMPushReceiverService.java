@@ -53,6 +53,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.raksheet.majorproject.Login.RegisterActivity.USER_REGISTRATION;
+
 //Class is extending GcmListenerService
 public class GCMPushReceiverService extends GcmListenerService {
 
@@ -278,10 +280,17 @@ public class GCMPushReceiverService extends GcmListenerService {
         // Creating HTTP Post
         HttpPost httpPost = new HttpPost(url);
 
+        SharedPreferences prefs = getSharedPreferences(USER_REGISTRATION,MODE_PRIVATE);
+        String deviceID = String.valueOf(prefs.getInt("deviceID",0));
+
+        DatabaseHandler db = new DatabaseHandler(this);
+        int tasks = db.countRemainingTasks();
+
         // Building post parameters
         // key and value pair
-        List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>(2);
-        nameValuePair.add(new BasicNameValuePair("deviceID", "1"));
+        List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>();
+        nameValuePair.add(new BasicNameValuePair("deviceID", deviceID));
+        nameValuePair.add(new BasicNameValuePair("tasks", String.valueOf(tasks)));
 
         // Url Encoding the POST parameters
         try {
