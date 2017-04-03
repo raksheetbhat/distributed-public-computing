@@ -34,7 +34,7 @@ public class GCMRegistrationIntentService extends IntentService {
     //Constants for success and errors
     public static final String REGISTRATION_SUCCESS = "RegistrationSuccess";
     public static final String REGISTRATION_ERROR = "RegistrationError";
-    private String server = "http://"+ BeanService.server_url+":8080/DisCo/UpdateGCM";
+    private String server = BeanService.server_url+"/UpdateGCM";
 
     //Class constructor
     public GCMRegistrationIntentService() {

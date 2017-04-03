@@ -51,7 +51,7 @@ public class StorageActivity extends AppCompatActivity {
     private static final int READ_REQUEST_CODE = 2;
     private static final boolean DEBUG = FALSE;
     ImageView uploadImage;
-    private String server = "http://"+ BeanService.server_url+":8080/DisCo/FileUpload";
+    private String server = BeanService.server_url+"/FileUpload";
     private ProgressDialog fileUploadProgress;
 
     @Override

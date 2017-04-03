@@ -60,11 +60,11 @@ import static com.example.raksheet.majorproject.GCM.GCMPushReceiverService.SERVE
 
 public class BeanService extends IntentService {
 
-    public static String server_url = "10.50.47.147";
+    public static String server_url = "http://10.50.45.42:8080/DisCo";
 
     private String javaCode;
     private final static Interpreter interpreter = new Interpreter();
-    private String server = "http://"+server_url+":8080/DisCo/UpdateTask";
+    private String server = server_url+"/UpdateTask";
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
