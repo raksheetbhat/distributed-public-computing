@@ -45,8 +45,10 @@ public class GCMRegistrationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        SharedPreferences prefs = getSharedPreferences(USER_REGISTRATION,MODE_PRIVATE);
+        int deviceID = prefs.getInt("deviceID",0);
         //Registering gcm to the device
-        registerGCM();
+        if(deviceID!=0) registerGCM();
     }
 
     private void registerGCM() {

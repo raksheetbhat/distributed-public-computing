@@ -112,28 +112,34 @@ public class GCMPushReceiverService extends GcmListenerService {
                     JSONArray response = postToServer(post_url);
                     ArrayList<ClientTask> clientsArray = new ArrayList<>();
 
-                    String path = "";
+                    List<String> paths = new ArrayList<>();
+                    System.out.println("task response: "+response);
 
-                    for(int i=0;i<response.length();i++){
-                        try {
-                            JSONObject j = (JSONObject) response.get(i);
-                            Gson g = new Gson();
-                            ClientTask ct = g.fromJson(j.toString(),ClientTask.class);
-                            clientsArray.add(ct);
-                            String link = ct.getData()+"?taskID="+ct.getTaskID();
-                            path = downloadFile(ct.getTaskID(),link);
-                            System.out.println(path);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                    if(response!=null && response.length()>0) {
+                        for (int i = 0; i < response.length(); i++) {
+                            try {
+                                JSONObject j = (JSONObject) response.get(i);
+                                Gson g = new Gson();
+                                ClientTask ct = g.fromJson(j.toString(), ClientTask.class);
+                                clientsArray.add(ct);
+                                String link = ct.getData() + "?taskID=" + ct.getTaskID();
+                                paths.add(downloadFile(ct.getTaskID(), link));
+                                System.out.println("path: " + i + " : " + paths.get(i));
+                                System.out.println("inside compute: " + i + " , " + ct.getTaskID());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
 
                     DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
                     Log.i("Databasehandler", "writing to database");
+                    int i=0;
                     for(ClientTask clientTask : clientsArray){
                         TaskMaster taskMaster = new TaskMaster(clientTask.getTaskID(),
-                                clientTask.getCode(),path,0,clientTask.getComplexity(),0);
+                                clientTask.getCode(),paths.get(i),0,clientTask.getComplexity(),0);
                         databaseHandler.addTask(taskMaster);
+                        i++;
                     }
                     databaseHandler.close();
 

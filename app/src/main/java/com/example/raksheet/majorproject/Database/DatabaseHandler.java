@@ -214,6 +214,49 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return null;
     }
 
+    public TaskMaster fetchMaxTaskRaw(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_TASK + " WHERE " + KEY_TASK_STATUS + " = 0 ORDER BY "
+                + KEY_TASK_COMPLEXITY + " DESC LIMIT 1;";
+
+        Cursor cursor = db.rawQuery(query,null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if(cursor.getCount() > 0)
+        {
+            // return contact
+             return new TaskMaster(Integer.parseInt(cursor.getString(0)),
+                    cursor.getString(1),cursor.getString(2) ,Integer.parseInt(cursor.getString(3)),
+                    Float.parseFloat(cursor.getString(4)),Integer.parseInt(cursor.getString(5)));
+        }
+        cursor.close();
+        return null;
+    }
+
+    public List<TaskMaster> fetchMaxTasks(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        List<TaskMaster> results = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_TASK + " WHERE " + KEY_TASK_STATUS + " = 0 ORDER BY "
+                + KEY_TASK_COMPLEXITY + " DESC;";
+
+        Cursor cursor = db.rawQuery(query,null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if(cursor.getCount() > 0)
+        {
+            // return contact
+            results.add(new TaskMaster(Integer.parseInt(cursor.getString(0)),
+                    cursor.getString(1),cursor.getString(2) ,Integer.parseInt(cursor.getString(3)),
+                    Float.parseFloat(cursor.getString(4)),Integer.parseInt(cursor.getString(5))));
+        }
+        cursor.close();
+        return results;
+    }
+
     public List<TaskMaster> fetchRemainingTasks(){
         SQLiteDatabase db = this.getReadableDatabase();
 

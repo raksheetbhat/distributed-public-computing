@@ -30,10 +30,13 @@ public class DBTest extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 DatabaseHandler db = new DatabaseHandler(getApplication());
+                String str = "";
                 for(TaskMaster t : db.getAllTasks()){
-                    textView.setText("Task ID: "+t.getTaskID()+"\nCode: "+t.getCode()+"\nData: "+t.getData()
-                            +"\ncomplexity: "+t.getComplexity()+"\nstatus: "+t.getStatus());
+                    str += "Task ID: "+t.getTaskID()+"\nCode: "+t.getCode()+"\nData: "+t.getData()
+                            +"\ncomplexity: "+t.getComplexity()+"\nstatus: "+t.getStatus();
+                    str+="\n";
                 }
+                textView.setText(str);
                 db.close();
             }
         });

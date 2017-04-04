@@ -63,7 +63,7 @@ import static com.example.raksheet.majorproject.GCM.GCMPushReceiverService.SERVE
 
 public class BeanService extends IntentService {
 
-    public static String server_url = "http://10.50.45.42:8080/DisCo";
+    public static String server_url = "http://192.168.1.102:8080/DisCo";
 
     private String javaCode;
     private final static Interpreter interpreter = new Interpreter();
@@ -108,6 +108,7 @@ public class BeanService extends IntentService {
 
     private String runString(String code) {
         try {
+            System.out.println("entered beanshell");
             return (String) interpreter.eval(code);
         } catch (TargetError e) {
             Throwable t = e.getTarget();
@@ -204,11 +205,11 @@ public class BeanService extends IntentService {
         System.out.println("bean service started");
         try {
             DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
-            TaskMaster task = databaseHandler.fetchMaxTask();
+            TaskMaster task = databaseHandler.fetchMaxTaskRaw();
             //TaskMaster task = null;
 //            if(databaseHandler.getAllTasks()!=null && databaseHandler.getAllTasks().size()>0)
 //                task = databaseHandler.getAllTasks().get(0);
-            System.out.println("task: "+task);
+            if(task!=null) System.out.println("task: "+task.getTaskID());
             if(task!=null) {
                 String code = task.getCode();
                 String readPath = task.getData();
@@ -240,6 +241,12 @@ public class BeanService extends IntentService {
                 task.setCode(code);
                 databaseHandler.updateTask(task);
                 databaseHandler.close();
+
+                //delete original file from phone
+                if(file.exists()){
+                    String filename = file.getName();
+                    if(file.delete())System.out.println(filename+" deleted");
+                }
 
                 //send results back to server
                 System.out.println("sending result to server: "+writePath);
@@ -300,6 +307,12 @@ public class BeanService extends IntentService {
                 taskMaster.setSentToServer(1);
                 db.updateTask(taskMaster);
                 db.close();
+
+                //delete original file from phone
+                if(file.exists()){
+                    String filename = file.getName();
+                    if(file.delete())System.out.println(filename + "deleted");
+                }
             }
         }
         catch(Exception e)

@@ -4,12 +4,15 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -62,20 +65,23 @@ public class RegisterActivity extends AppCompatActivity {
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(isNetworkAvailable()) {
+                    if (usernameEdit.getText().toString().isEmpty() || passwordEdit.getText().toString().isEmpty()) {
+                        Toast.makeText(RegisterActivity.this, "Fields cannot be empty", Toast.LENGTH_SHORT).show();
+                    } else {
+                        SharedPreferences.Editor editor = getSharedPreferences(USER_REGISTRATION, MODE_PRIVATE).edit();
+                        editor.putString("username", usernameEdit.getText().toString());
+                        editor.putString("password", passwordEdit.getText().toString());
+                        editor.putString("ram_size", ramEdit.getText().toString());
+                        editor.putString("storage_size", storageEdit.getText().toString());
+                        editor.apply();
 
-                if(usernameEdit.getText().toString().isEmpty() || passwordEdit.getText().toString().isEmpty()){
-                    Toast.makeText(RegisterActivity.this,"Fields cannot be empty",Toast.LENGTH_SHORT).show();
-                }else {
-                    SharedPreferences.Editor editor = getSharedPreferences(USER_REGISTRATION, MODE_PRIVATE).edit();
-                    editor.putString("username", usernameEdit.getText().toString());
-                    editor.putString("password", passwordEdit.getText().toString());
-                    editor.putString("ram_size", ramEdit.getText().toString());
-                    editor.putString("storage_size", storageEdit.getText().toString());
-                    editor.apply();
-
-                    RegisterMaster registerMaster = new RegisterMaster(usernameEdit.getText().toString(),
-                            passwordEdit.getText().toString());
-                    new UploadUserData().execute(registerMaster);
+                        RegisterMaster registerMaster = new RegisterMaster(usernameEdit.getText().toString(),
+                                passwordEdit.getText().toString());
+                        new UploadUserData().execute(registerMaster);
+                    }
+                }else{
+                    Toast.makeText(RegisterActivity.this,"No internet",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -146,6 +152,14 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+
     private class UploadDeviceData extends AsyncTask<String,Void,Void>{
 
         @Override
@@ -161,9 +175,8 @@ public class RegisterActivity extends AppCompatActivity {
         // Creating HTTP Post
         HttpPost httpPost = new HttpPost(url_device);
 
-        WifiManager manager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        WifiInfo info = manager.getConnectionInfo();
-        String address = info.getMacAddress();
+        TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
+        String imei = telephonyManager.getDeviceId();
 
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ActivityManager activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
@@ -174,7 +187,7 @@ public class RegisterActivity extends AppCompatActivity {
         // key and value pair
         List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>();
         nameValuePair.add(new BasicNameValuePair("userID", userID));
-        nameValuePair.add(new BasicNameValuePair("mac", address));
+        nameValuePair.add(new BasicNameValuePair("mac", imei));
         nameValuePair.add(new BasicNameValuePair("ram", String.valueOf(totalMegs)));
 
         // Url Encoding the POST parameters

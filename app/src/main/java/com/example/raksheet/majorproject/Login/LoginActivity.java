@@ -6,6 +6,8 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
@@ -64,14 +66,11 @@ public class LoginActivity extends Activity {
         passwordEdit = (EditText) findViewById(R.id.login_password);
 
         SharedPreferences mPrefs = LoginActivity.this.getSharedPreferences(LOADING_PREFERENCES,MODE_PRIVATE);
-        SharedPreferences.Editor prefsEditor = mPrefs.edit();
         boolean firstTime = mPrefs.getBoolean("FirstTime", true);
         if(!firstTime){
             startActivity(new Intent(LoginActivity.this,MainActivity.class));
             finish();
         }
-        prefsEditor.putBoolean("FirstTime",false);
-        prefsEditor.apply();
 
         ActivityCompat.requestPermissions(LoginActivity.this,
                 new String[]{Manifest.permission.READ_PHONE_STATE},
@@ -80,7 +79,9 @@ public class LoginActivity extends Activity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(usernameEdit.getText().toString().isEmpty() || passwordEdit.getText().toString().isEmpty()){
+                if(!isNetworkAvailable()){
+                    Toast.makeText(LoginActivity.this,"No internet",Toast.LENGTH_SHORT).show();
+                }else if(usernameEdit.getText().toString().isEmpty() || passwordEdit.getText().toString().isEmpty()){
                     Toast.makeText(LoginActivity.this,"Fields cannot be empty",Toast.LENGTH_SHORT).show();
                 }else{
                     String userName = usernameEdit.getText().toString();
@@ -101,7 +102,6 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(LoginActivity.this,RegisterActivity.class));
-                finish();
             }
         });
 
@@ -157,8 +157,13 @@ public class LoginActivity extends Activity {
 
                     new UploadDeviceData().execute(String.valueOf(userID));
                 }else{
-                    String msg = result.getString("message");
-                    Toast.makeText(LoginActivity.this,msg,Toast.LENGTH_SHORT).show();
+                    final String msg = result.getString("message");
+                    LoginActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(LoginActivity.this,msg,Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         } catch (ClientProtocolException e) {
@@ -170,6 +175,13 @@ public class LoginActivity extends Activity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     private class UploadDeviceData extends AsyncTask<String,Void,Void>{
@@ -224,6 +236,10 @@ public class LoginActivity extends Activity {
                 SharedPreferences.Editor editor = getSharedPreferences(USER_REGISTRATION,MODE_PRIVATE).edit();
                 editor.putInt("deviceID",deviceID);
                 editor.apply();
+
+                SharedPreferences.Editor prefsEditor = getSharedPreferences(LOADING_PREFERENCES,MODE_PRIVATE).edit();
+                prefsEditor.putBoolean("FirstTime",false);
+                prefsEditor.apply();
 
                 startActivity(new Intent(LoginActivity.this,MainActivity.class));
                 finish();
