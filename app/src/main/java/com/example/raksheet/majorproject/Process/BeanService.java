@@ -206,6 +206,7 @@ public class BeanService extends IntentService {
         try {
             DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
             TaskMaster task = databaseHandler.fetchMaxTaskRaw();
+            databaseHandler.close();
             //TaskMaster task = null;
 //            if(databaseHandler.getAllTasks()!=null && databaseHandler.getAllTasks().size()>0)
 //                task = databaseHandler.getAllTasks().get(0);
@@ -236,17 +237,18 @@ public class BeanService extends IntentService {
                 System.out.println("result: " + result);
 
                 //write to db
+                DatabaseHandler db = new DatabaseHandler(getApplicationContext());
                 task.setStatus(1);
                 task.setData(writePath);
                 task.setCode(code);
-                databaseHandler.updateTask(task);
-                databaseHandler.close();
+                db.updateTask(task);
+                db.close();
 
                 //delete original file from phone
-                if(file.exists()){
-                    String filename = file.getName();
-                    if(file.delete())System.out.println(filename+" deleted");
-                }
+//                if(file.exists()){
+//                    String filename = file.getName();
+//                    if(file.delete())System.out.println(filename+" deleted");
+//                }
 
                 //send results back to server
                 System.out.println("sending result to server: "+writePath);
@@ -256,20 +258,21 @@ public class BeanService extends IntentService {
             e.printStackTrace();
         }
 
-        try{
-            //fetch tasks not sent to server and send
-            DatabaseHandler db = new DatabaseHandler(this);
-            List<TaskMaster> tasksUnsent = db.fetchRemainingTasks();
-            if(tasksUnsent!=null && tasksUnsent.size()>0 && isNetworkAvailable()){
-                for(TaskMaster taskMaster : tasksUnsent){
-                    postData(new File(taskMaster.getData()),String.valueOf(taskMaster.getTaskID()));
-                }
-            }
-            db.close();
-        }catch(Exception e){
-            e.printStackTrace();
-        }
+//        try{
+//            //fetch tasks not sent to server and send
+//            DatabaseHandler db = new DatabaseHandler(this);
+//            List<TaskMaster> tasksUnsent = db.fetchRemainingTasks();
+//            if(tasksUnsent!=null && tasksUnsent.size()>0 && isNetworkAvailable()){
+//                for(TaskMaster taskMaster : tasksUnsent){
+//                    postData(new File(taskMaster.getData()),String.valueOf(taskMaster.getTaskID()));
+//                }
+//            }
+//            db.close();
+//        }catch(Exception e){
+//            e.printStackTrace();
+//        }
     }
+
 
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
@@ -309,10 +312,10 @@ public class BeanService extends IntentService {
                 db.close();
 
                 //delete original file from phone
-                if(file.exists()){
-                    String filename = file.getName();
-                    if(file.delete())System.out.println(filename + "deleted");
-                }
+//                if(file.exists()){
+//                    String filename = file.getName();
+//                    if(file.delete())System.out.println(filename + "deleted");
+//                }
             }
         }
         catch(Exception e)

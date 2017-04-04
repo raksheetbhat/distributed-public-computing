@@ -325,10 +325,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String countQuery = "SELECT  * FROM " + TABLE_TASK;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.close();
 
         // return count
-        return cursor.getCount();
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
     }
 
     public int updateTask(TaskMaster task){

@@ -141,15 +141,19 @@ public class GCMPushReceiverService extends GcmListenerService {
                         databaseHandler.addTask(taskMaster);
                         i++;
                     }
+                    int num = databaseHandler.getTaskCount();
                     databaseHandler.close();
 
-                    startService(new Intent(this, BeanService.class));
-
-                    //start the other service to run the tasks
-                    DatabaseHandler db = new DatabaseHandler(getApplication());
-                    for(TaskMaster t : db.getAllTasks()){
-                        System.out.println(t.getTaskID());
+                    for(int j=0;j<num;j++){
+                        System.out.println("inside");
+                        startService(new Intent(this, BeanService.class));
                     }
+
+//                    //start the other service to run the tasks
+//                    DatabaseHandler db = new DatabaseHandler(getApplication());
+//                    for(TaskMaster t : db.getAllTasks()){
+//                        System.out.println(t.getTaskID());
+//                    }
 
             }
         }
@@ -164,6 +168,8 @@ public class GCMPushReceiverService extends GcmListenerService {
 
         //Parsing notification message
     }
+
+
 
     public String downloadFile(com.example.raksheet.majorproject.GCM.Notification file){
         int count;
