@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.raksheet.majorproject.Login.RegisterActivity.USER_REGISTRATION;
+import static com.example.raksheet.majorproject.MainActivity.IP_ADDRESS;
 
 public class GCMRegistrationIntentService extends IntentService {
     //Constants for success and errors
@@ -95,6 +96,10 @@ public class GCMRegistrationIntentService extends IntentService {
         }
 
         void postData(String token) {
+
+            SharedPreferences prefs1 = getSharedPreferences(IP_ADDRESS,MODE_PRIVATE);
+            String server_url = "http://"+prefs1.getString("ip_address","")+":8080/DisCo";
+            String server = server_url+"/UpdateGCM";
 
             // Create a new HttpClient and Post Header
             HttpClient httpclient = new DefaultHttpClient();

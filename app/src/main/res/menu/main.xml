@@ -20,4 +20,11 @@
         android:icon="@mipmap/ic_settings_white_24dp"
         android:title="DB functions"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/ip_address"
+        android:orderInCategory="400"
+        android:icon="@mipmap/ic_settings_white_24dp"
+        android:title="Change IP"
+        app:showAsAction="never" />
 </menu>

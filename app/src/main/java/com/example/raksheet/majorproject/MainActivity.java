@@ -2,6 +2,7 @@ package com.example.raksheet.majorproject;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +31,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String USER_REGISTRATION = "user_registration";
+    public static final String IP_ADDRESS = "ip address";
 
     Intent backService;
     private TextView contentText;
@@ -403,6 +407,29 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.extras) {
             startActivity(new Intent(MainActivity.this,DBTest.class));
             return true;
+        }else if(id == R.id.ip_address){
+            final Dialog dialog = new Dialog(MainActivity.this);
+            dialog.setContentView(R.layout.ip_layout);
+            final EditText ipEdit = (EditText) dialog.findViewById(R.id.ip_edit);
+            Button cancel = (Button) dialog.findViewById(R.id.ip_cancel);
+            Button accept = (Button) dialog.findViewById(R.id.ip_accept);
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+            accept.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String ip_address = ipEdit.getText().toString();
+                    SharedPreferences.Editor editor = getSharedPreferences(IP_ADDRESS,MODE_PRIVATE).edit();
+                    editor.putString("ip_address",ip_address);
+                    editor.apply();
+                    dialog.dismiss();
+                }
+            });
+            dialog.show();
         }
 
         return super.onOptionsItemSelected(item);

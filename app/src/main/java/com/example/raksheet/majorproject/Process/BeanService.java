@@ -56,6 +56,7 @@ import bsh.ParseException;
 import bsh.TargetError;
 
 import static com.example.raksheet.majorproject.GCM.GCMPushReceiverService.SERVER_URL;
+import static com.example.raksheet.majorproject.MainActivity.IP_ADDRESS;
 
 /**
  * Created by Raksheet on 21-02-2017.
@@ -284,6 +285,10 @@ public class BeanService extends IntentService {
     public void postData(File file,String taskID){
         try
         {
+            SharedPreferences prefs = getSharedPreferences(IP_ADDRESS,MODE_PRIVATE);
+            String server_url = "http://"+prefs.getString("ip_address","")+":8080/DisCo";
+            String server = server_url+"/UpdateTask";
+
             System.out.println("url: "+server);
             HttpClient client = new DefaultHttpClient();
             HttpPost post = new HttpPost(server);

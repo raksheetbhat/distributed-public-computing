@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -40,6 +41,7 @@ import org.apache.http.util.EntityUtils;
 import java.io.File;
 import java.util.List;
 
+import static com.example.raksheet.majorproject.MainActivity.IP_ADDRESS;
 import static java.lang.Boolean.FALSE;
 
 /**
@@ -307,6 +309,10 @@ public class StorageActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             try
             {
+                SharedPreferences prefs = getSharedPreferences(IP_ADDRESS,MODE_PRIVATE);
+                String server_url = "http://"+prefs.getString("ip_address","")+":8080/DisCo";
+                String server = server_url+"/FileUpload";
+
                 HttpClient client = new DefaultHttpClient();
                 File file = new File(params[0]);
                 HttpPost post = new HttpPost(server);
@@ -315,8 +321,6 @@ public class StorageActivity extends AppCompatActivity {
                 entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
                 entityBuilder.addBinaryBody("uploadfile", file);
                 // add more key/value pairs here as needed
-
-
 
                 HttpEntity entity = entityBuilder.build();
                 post.setEntity(entity);

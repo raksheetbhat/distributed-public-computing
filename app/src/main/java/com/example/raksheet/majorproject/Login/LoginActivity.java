@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.raksheet.majorproject.Login.RegisterActivity.USER_REGISTRATION;
+import static com.example.raksheet.majorproject.MainActivity.IP_ADDRESS;
 
 /**
  * Created by Raksheet on 07-11-2016.
@@ -52,6 +53,8 @@ public class LoginActivity extends Activity {
     private String url_user = BeanService.server_url+"/Login";
     private String url_device = BeanService.server_url+"/DeviceRegistration";
 
+    public static String ip = "10.100.52.200";
+
     Button loginButton,registerButton;
     EditText usernameEdit,passwordEdit;
 
@@ -59,6 +62,10 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
+
+        SharedPreferences.Editor editor = getSharedPreferences(IP_ADDRESS,MODE_PRIVATE).edit();
+        editor.putString("ip_address",ip);
+        editor.apply();
 
         loginButton = (Button) findViewById(R.id.login_button);
         registerButton = (Button) findViewById(R.id.register_button);
@@ -117,6 +124,10 @@ public class LoginActivity extends Activity {
     }
 
     private void postToServer(RegisterMaster registerMaster){
+        SharedPreferences prefs = getSharedPreferences(IP_ADDRESS,MODE_PRIVATE);
+        String server_url = "http://"+prefs.getString("ip_address","")+":8080/DisCo";
+        String url_user = server_url+"/Login";
+
         // Creating HTTP client
         HttpClient httpClient = new DefaultHttpClient();
         // Creating HTTP Post
@@ -194,6 +205,10 @@ public class LoginActivity extends Activity {
     }
 
     private void postToServer1(String userID){
+        SharedPreferences prefs = getSharedPreferences(IP_ADDRESS,MODE_PRIVATE);
+        String server_url = "http://"+prefs.getString("ip_address","")+":8080/DisCo";
+        String url_device = server_url+"/DeviceRegistration";
+
         // Creating HTTP client
         HttpClient httpClient = new DefaultHttpClient();
         // Creating HTTP Post
