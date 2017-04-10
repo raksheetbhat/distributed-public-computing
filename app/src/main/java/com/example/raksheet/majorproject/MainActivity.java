@@ -46,8 +46,14 @@ import com.example.raksheet.majorproject.Process.TaskMaster;
 import com.example.raksheet.majorproject.Storage.StorageActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.jaredrummler.android.device.DeviceName;
 
 import android.Manifest.permission.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import pl.pawelkleczkowski.customgauge.CustomGauge;
 

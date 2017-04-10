@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.example.raksheet.majorproject.MainActivity;
 import com.example.raksheet.majorproject.Process.BeanService;
 import com.example.raksheet.majorproject.R;
+import com.jaredrummler.android.device.DeviceName;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -245,11 +246,28 @@ public class RegisterActivity extends AppCompatActivity {
         activityManager.getMemoryInfo(mi);
         int totalMegs = (int) (mi.totalMem / 1048576L);
 
+        final String[] modelName = {""};
+
+        DeviceName.with(RegisterActivity.this).request(new DeviceName.Callback() {
+            @Override public void onFinished(DeviceName.DeviceInfo info, Exception error) {
+                String manufacturer = info.manufacturer;  // "Samsung"
+                String name = info.marketName;            // "Galaxy S7 Edge"
+                String model = info.model;                // "SAMSUNG-SM-G935A"
+                String codename = info.codename;          // "hero2lte"
+                String deviceName = info.getName();       // "Galaxy S7 Edge"
+                // FYI: We are on the UI thread.
+                modelName[0] = model;
+            }
+        });
+
+        System.out.println("model name: "+modelName[0]);
+
         // Building post parameters
         // key and value pair
         List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>();
         nameValuePair.add(new BasicNameValuePair("userID", userID));
         nameValuePair.add(new BasicNameValuePair("mac", imei));
+        nameValuePair.add(new BasicNameValuePair("model", modelName[0]));
         nameValuePair.add(new BasicNameValuePair("ram", String.valueOf(totalMegs)));
 
         // Url Encoding the POST parameters

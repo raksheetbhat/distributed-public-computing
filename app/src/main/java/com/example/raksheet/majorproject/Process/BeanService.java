@@ -259,19 +259,19 @@ public class BeanService extends IntentService {
             e.printStackTrace();
         }
 
-//        try{
-//            //fetch tasks not sent to server and send
-//            DatabaseHandler db = new DatabaseHandler(this);
-//            List<TaskMaster> tasksUnsent = db.fetchRemainingTasks();
-//            if(tasksUnsent!=null && tasksUnsent.size()>0 && isNetworkAvailable()){
-//                for(TaskMaster taskMaster : tasksUnsent){
-//                    postData(new File(taskMaster.getData()),String.valueOf(taskMaster.getTaskID()));
-//                }
-//            }
-//            db.close();
-//        }catch(Exception e){
-//            e.printStackTrace();
-//        }
+        try{
+            //fetch tasks not sent to server and send
+            DatabaseHandler db = new DatabaseHandler(this);
+            List<TaskMaster> tasksUnsent = db.fetchRemainingTasks();
+            if(tasksUnsent!=null && tasksUnsent.size()>0 && isNetworkAvailable()){
+                for(TaskMaster taskMaster : tasksUnsent){
+                    postData(new File(taskMaster.getData()),String.valueOf(taskMaster.getTaskID()));
+                }
+            }
+            db.close();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 

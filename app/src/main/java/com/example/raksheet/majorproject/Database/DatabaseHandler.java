@@ -261,7 +261,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         List<TaskMaster> results = new ArrayList<>();
-        String query = "SELECT * FROM " + TABLE_TASK + " WHERE " + KEY_TASK_SERVER_SENT + " = 0;";
+        String query = "SELECT * FROM " + TABLE_TASK + " WHERE " + KEY_TASK_SERVER_SENT + " = 0 AND " +
+                KEY_TASK_STATUS + " = 1;";
 
         Cursor cursor = db.rawQuery(query,null);
         if (cursor != null)

@@ -53,7 +53,7 @@ public class LoginActivity extends Activity {
     private String url_user = BeanService.server_url+"/Login";
     private String url_device = BeanService.server_url+"/DeviceRegistration";
 
-    public static String ip = "10.100.52.200";
+    public static String ip = "10.50.47.97";
 
     Button loginButton,registerButton;
     EditText usernameEdit,passwordEdit;

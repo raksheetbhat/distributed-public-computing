@@ -45,6 +45,7 @@ dependencies {
     compile 'org.beanshell:bsh:2.0b5'
     compile 'com.google.code.gson:gson:2.8.0'
     compile 'au.com.bytecode:opencsv:2.4'
+    compile 'com.jaredrummler:android-device-names:1.1.2'
     testCompile 'junit:junit:4.12'
 }
 
