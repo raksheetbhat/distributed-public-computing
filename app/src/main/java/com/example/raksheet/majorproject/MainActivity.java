@@ -197,13 +197,13 @@ public class MainActivity extends AppCompatActivity
         publicStorageGauge.setPointSize((int)percentPublic);
         publicStorageText.setText(publicStorageUsed+"/"+publicStorageTotal+" MB");
 
-        // to start service
-        if(getBatteryLevel() && connectedToWifi()){
+        // conditions to start service
+        if(getBatteryLevel() && connectedToWifi() && usedMegs > (0.2*totalMegs)){
             //start service
-            //getApplicationContext().startService(backService);
+
         }else{
             //stop service
-            //getApplicationContext().stopService(backService);
+
         }
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);

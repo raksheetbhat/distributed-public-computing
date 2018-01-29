@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.raksheet.majorproject.MainActivity;
 import com.example.raksheet.majorproject.Process.BeanService;
 import com.example.raksheet.majorproject.R;
+import com.jaredrummler.android.device.DeviceName;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -50,10 +51,11 @@ import static com.example.raksheet.majorproject.MainActivity.IP_ADDRESS;
 
 public class LoginActivity extends Activity {
     private static final String LOADING_PREFERENCES = "loading_preferences";
+    public static final String DEVICE_INFO = "device info";
     private String url_user = BeanService.server_url+"/Login";
     private String url_device = BeanService.server_url+"/DeviceRegistration";
 
-    public static String ip = "10.50.47.97";
+    public static String ip = "10.50.46.62";
 
     Button loginButton,registerButton;
     EditText usernameEdit,passwordEdit;
@@ -72,8 +74,9 @@ public class LoginActivity extends Activity {
         usernameEdit = (EditText) findViewById(R.id.login_id);
         passwordEdit = (EditText) findViewById(R.id.login_password);
 
-        SharedPreferences mPrefs = LoginActivity.this.getSharedPreferences(LOADING_PREFERENCES,MODE_PRIVATE);
+        SharedPreferences mPrefs = getSharedPreferences(LOADING_PREFERENCES,MODE_PRIVATE);
         boolean firstTime = mPrefs.getBoolean("FirstTime", true);
+        System.out.println("first time: "+firstTime);
         if(!firstTime){
             startActivity(new Intent(LoginActivity.this,MainActivity.class));
             finish();
@@ -109,6 +112,15 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(LoginActivity.this,RegisterActivity.class));
+            }
+        });
+
+        DeviceName.with(LoginActivity.this).request(new DeviceName.Callback() {
+            @Override public void onFinished(DeviceName.DeviceInfo info, Exception error) {
+                String model = info.marketName;
+                SharedPreferences.Editor editor = getSharedPreferences(DEVICE_INFO,MODE_PRIVATE).edit();
+                editor.putString("model",model);
+                editor.apply();
             }
         });
 
@@ -252,6 +264,7 @@ public class LoginActivity extends Activity {
                 editor.putInt("deviceID",deviceID);
                 editor.apply();
 
+                System.out.println("not first time");
                 SharedPreferences.Editor prefsEditor = getSharedPreferences(LOADING_PREFERENCES,MODE_PRIVATE).edit();
                 prefsEditor.putBoolean("FirstTime",false);
                 prefsEditor.apply();

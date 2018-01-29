@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
@@ -21,7 +22,10 @@ import android.support.v4.content.CursorLoader;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.raksheet.majorproject.Database.DatabaseHandler;
@@ -33,14 +37,27 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import static com.example.raksheet.majorproject.Login.RegisterActivity.USER_REGISTRATION;
 import static com.example.raksheet.majorproject.MainActivity.IP_ADDRESS;
 import static java.lang.Boolean.FALSE;
 
@@ -52,7 +69,7 @@ public class StorageActivity extends AppCompatActivity {
     private static final int STORAGE_FILE_CHOOSER = 1;
     private static final int READ_REQUEST_CODE = 2;
     private static final boolean DEBUG = FALSE;
-    ImageView uploadImage;
+    ImageView uploadImage,downloadImage;
     private String server = BeanService.server_url+"/FileUpload";
     private ProgressDialog fileUploadProgress;
 
@@ -64,6 +81,8 @@ public class StorageActivity extends AppCompatActivity {
         //Toast.makeText(this,server,Toast.LENGTH_SHORT).show();
 
         uploadImage = (ImageView) findViewById(R.id.storage_file_choose);
+        downloadImage = (ImageView) findViewById(R.id.storage_file_download);
+
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,6 +90,13 @@ public class StorageActivity extends AppCompatActivity {
 //                intent.setType("file/*");
 //                startActivityForResult(intent, STORAGE_FILE_CHOOSER);
                 performFileSearch();
+            }
+        });
+
+        downloadImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(StorageActivity.this,DownloadActivity.class));
             }
         });
 
@@ -317,10 +343,13 @@ public class StorageActivity extends AppCompatActivity {
                 File file = new File(params[0]);
                 HttpPost post = new HttpPost(server);
 
+                SharedPreferences preferences = getSharedPreferences(USER_REGISTRATION,MODE_PRIVATE);
+                int userID = preferences.getInt("userID",0);
+
                 MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
                 entityBuilder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
                 entityBuilder.addBinaryBody("uploadfile", file);
-                // add more key/value pairs here as needed
+                entityBuilder.addPart("userID",new StringBody(String.valueOf(userID), ContentType.TEXT_PLAIN));
 
                 HttpEntity entity = entityBuilder.build();
                 post.setEntity(entity);
@@ -328,7 +357,7 @@ public class StorageActivity extends AppCompatActivity {
                 HttpResponse response = client.execute(post);
                 HttpEntity httpEntity = response.getEntity();
 
-                Log.v("result", EntityUtils.toString(httpEntity));
+                //Log.v("result", EntityUtils.toString(httpEntity));
 
                 result = EntityUtils.toString(httpEntity);
             }
@@ -350,6 +379,7 @@ public class StorageActivity extends AppCompatActivity {
             super.onPostExecute(result);
             if(fileUploadProgress.isShowing())fileUploadProgress.dismiss();
             //Toast.makeText(StorageActivity.this,result,Toast.LENGTH_SHORT).show();
+            System.out.println("storage list result: "+result);
         }
     }
 }

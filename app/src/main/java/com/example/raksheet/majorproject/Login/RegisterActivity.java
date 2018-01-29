@@ -44,6 +44,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.raksheet.majorproject.Login.LoginActivity.DEVICE_INFO;
 import static com.example.raksheet.majorproject.Login.LoginActivity.ip;
 import static com.example.raksheet.majorproject.MainActivity.IP_ADDRESS;
 
@@ -196,8 +197,13 @@ public class RegisterActivity extends AppCompatActivity {
 
                     new UploadDeviceData().execute(String.valueOf(userID));
                 }else{
-                    String msg = result.getString("message");
-                    Toast.makeText(RegisterActivity.this,msg,Toast.LENGTH_SHORT).show();
+                    final String msg = result.getString("message");
+                    RegisterActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(RegisterActivity.this,msg,Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
         } catch (ClientProtocolException e) {
@@ -246,28 +252,16 @@ public class RegisterActivity extends AppCompatActivity {
         activityManager.getMemoryInfo(mi);
         int totalMegs = (int) (mi.totalMem / 1048576L);
 
-        final String[] modelName = {""};
-
-        DeviceName.with(RegisterActivity.this).request(new DeviceName.Callback() {
-            @Override public void onFinished(DeviceName.DeviceInfo info, Exception error) {
-                String manufacturer = info.manufacturer;  // "Samsung"
-                String name = info.marketName;            // "Galaxy S7 Edge"
-                String model = info.model;                // "SAMSUNG-SM-G935A"
-                String codename = info.codename;          // "hero2lte"
-                String deviceName = info.getName();       // "Galaxy S7 Edge"
-                // FYI: We are on the UI thread.
-                modelName[0] = model;
-            }
-        });
-
-        System.out.println("model name: "+modelName[0]);
+        SharedPreferences preferences = getSharedPreferences(DEVICE_INFO,MODE_PRIVATE);
+        String modelName = preferences.getString("model","");
+        System.out.println("model: "+modelName);
 
         // Building post parameters
         // key and value pair
         List<NameValuePair> nameValuePair = new ArrayList<NameValuePair>();
         nameValuePair.add(new BasicNameValuePair("userID", userID));
         nameValuePair.add(new BasicNameValuePair("mac", imei));
-        nameValuePair.add(new BasicNameValuePair("model", modelName[0]));
+        nameValuePair.add(new BasicNameValuePair("model", modelName));
         nameValuePair.add(new BasicNameValuePair("ram", String.valueOf(totalMegs)));
 
         // Url Encoding the POST parameters

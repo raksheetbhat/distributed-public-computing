@@ -101,7 +101,6 @@ public class GCMPushReceiverService extends GcmListenerService {
                         Log.i("Databasehandler", "writing to database");
                         databaseHandler.addStorageUser(storageMaster);
                         databaseHandler.close();
-
                     }
                     break;
                 case "compute":

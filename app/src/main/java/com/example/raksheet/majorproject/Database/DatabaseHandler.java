@@ -6,16 +6,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.raksheet.majorproject.Process.ClientTask;
-import com.example.raksheet.majorproject.Process.TaskClass;
 import com.example.raksheet.majorproject.Process.TaskMaster;
 import com.example.raksheet.majorproject.Storage.StorageMaster;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -42,6 +37,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String KEY_TASK_STATUS = "status";
     private static final String KEY_TASK_COMPLEXITY = "complexity";
     private static final String KEY_TASK_SERVER_SENT = "server_sent";
+
+    int typesOfComplexity = 3;
 
     //create statements
     private String CREATE_STORAGE_TABLE = "CREATE TABLE " + TABLE_STORAGE + "( " +
@@ -278,6 +275,88 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         cursor.close();
         return results;
     }
+
+    public int sum(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query_sum = "SELECT SUM ( " + KEY_TASK_COMPLEXITY + " ) FROM " + TABLE_TASK + " GROUP BY " + KEY_TASK_ID;
+
+        Cursor cursor = db.rawQuery(query_sum,null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if(cursor.getCount() > 0)
+        {
+            return cursor.getCount();
+        }
+        cursor.close();
+        return 0;
+    }
+
+    public int complexityNum(int complexity){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query_sum = "SELECT COUNT (*) FROM " + TABLE_TASK + " WHERE " + KEY_TASK_COMPLEXITY + " = " + complexity;
+
+        Cursor cursor = db.rawQuery(query_sum,null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if(cursor.getCount() > 0)
+        {
+            return cursor.getCount();
+        }
+        cursor.close();
+        return 0;
+    }
+
+    public HashMap<Integer,HashMap<Integer,Integer>> weightedQueue(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        int sumVal = sum();
+
+        List<TaskMaster> results = new ArrayList<>();
+        String query = "SELECT * FROM " + TABLE_TASK + " WHERE " + KEY_TASK_STATUS + " = 0 ORDER BY "
+                + KEY_TASK_COMPLEXITY + " DESC;";
+
+        Cursor cursor = db.rawQuery(query,null);
+        if (cursor != null)
+            cursor.moveToFirst();
+
+        if(cursor.getCount() > 0)
+        {
+            // return contact
+            results.add(new TaskMaster(Integer.parseInt(cursor.getString(0)),
+                    cursor.getString(1),cursor.getString(2) ,Integer.parseInt(cursor.getString(3)),
+                    Float.parseFloat(cursor.getString(4)),Integer.parseInt(cursor.getString(5))));
+        }
+        cursor.close();
+
+        HashMap<Integer,HashMap<Integer,Integer>> map = new HashMap<>();
+        int count = 1;
+        int i=1;
+
+        for(TaskMaster task : results){
+            int weight = (int) Math.ceil(task.getComplexity()/sumVal) * 10;
+            int numComplexity = complexityNum((int) task.getComplexity());
+            int x = i%weight;
+            int y = i/weight;
+            if(i<numComplexity){
+                int val = x + (y*typesOfComplexity);
+                HashMap<Integer,Integer> innerMap = new HashMap<>();
+                innerMap.put((int)task.getComplexity(),val);
+                map.put(count,innerMap);
+            }else{
+                i=1;
+            }
+            i++;
+            count++;
+        }
+
+        return map;
+    }
+
+
 
     public int countRemainingTasks(){
         SQLiteDatabase db = this.getReadableDatabase();

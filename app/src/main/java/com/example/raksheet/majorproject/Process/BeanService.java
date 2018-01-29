@@ -14,6 +14,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -86,10 +87,8 @@ public class BeanService extends IntentService {
     private void initBeanshell(String readPath,String writePath) {
         try {
             interpreter.set("context", getApplication());//set any variable, you can refer to it directly from string
-            //interpreter.set("rootView", findViewById(android.R.id.content));
             interpreter.set("read_path",readPath);
             interpreter.set("write_path",writePath);
-            //interpreter.set("button", findViewById(R.id.buttonRun));
             if (interpreter.get("portnum") == null) { // server not set
                 interpreter.set("portnum", 1234);
                 interpreter.eval("setAccessibility(true)"); // turn off access restrictions
@@ -110,6 +109,13 @@ public class BeanService extends IntentService {
     private String runString(String code) {
         try {
             System.out.println("entered beanshell");
+            Handler mHandler = new Handler(getMainLooper());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getApplicationContext(),"Compute started",Toast.LENGTH_SHORT).show();
+                }
+            });
             return (String) interpreter.eval(code);
         } catch (TargetError e) {
             Throwable t = e.getTarget();
@@ -123,42 +129,6 @@ public class BeanService extends IntentService {
         }
         return null;
     }
-
-//    @Override
-//    public int onStartCommand(final Intent intent, final int flags,
-//                              final int startId) {
-//        //your code
-//        System.out.println("bean service started");
-//        try {
-//            DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
-//            TaskMaster task = databaseHandler.fetchMaxTask();
-//            //TaskMaster task = databaseHandler.getAllTasks().get(0);
-//            System.out.println("task: "+task);
-//            if(task!=null) {
-//                String code = task.getCode();
-//                String readPath = task.getData();
-//
-//                System.out.println("code: "+code);
-//
-//                String writePath = task.getTaskID() + "_changed.csv";
-//
-//                initBeanshell(readPath, writePath);
-//                String result = runString(code);
-//
-//                System.out.println("result: " + result);
-//
-//                task.setStatus(1);
-//                task.setData(result);
-//                task.setCode(code);
-//                databaseHandler.updateTask(task);
-//                databaseHandler.close();
-//            }
-//        }catch(NullPointerException e){
-//            e.printStackTrace();
-//        }
-//
-//        return START_STICKY;
-//    }
 
     @Nullable
     @Override
@@ -187,30 +157,11 @@ public class BeanService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-//        String javaCode = "import android.widget.Toast; \n" +
-//                "import android.support.design.widget.Snackbar;\n " +
-//                "import android.view.View;\n" +
-//                "import android.view.View.OnClickListener; \n" +
-//                "return s";
-//
-//        String jCode = "for(t:tasks){\n"+
-//                "print(t.code + \" \" + t.data);}";
-//
-//        TaskClass t1 = new TaskClass("data1","code1");
-//        TaskClass t2 = new TaskClass("data2","code2");
-//        TaskClass t3 = new TaskClass("data3","code3");
-//
-//        initBeanshell(Arrays.asList(t1,t2,t3));
-//        runString(jCode);
-
         System.out.println("bean service started");
         try {
             DatabaseHandler databaseHandler = new DatabaseHandler(getApplication());
             TaskMaster task = databaseHandler.fetchMaxTaskRaw();
             databaseHandler.close();
-            //TaskMaster task = null;
-//            if(databaseHandler.getAllTasks()!=null && databaseHandler.getAllTasks().size()>0)
-//                task = databaseHandler.getAllTasks().get(0);
             if(task!=null) System.out.println("task: "+task.getTaskID());
             if(task!=null) {
                 String code = task.getCode();
@@ -233,9 +184,19 @@ public class BeanService extends IntentService {
                 String writePath = filePath;
 
                 initBeanshell(readPath, writePath);
+                long start = System.currentTimeMillis();
                 String result = runString(code);
+                long end = System.currentTimeMillis();
+                System.out.println("time: "+(end-start));
 
                 System.out.println("result: " + result);
+                Handler mHandler = new Handler(getMainLooper());
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"Compute ended",Toast.LENGTH_SHORT).show();
+                    }
+                });
 
                 //write to db
                 DatabaseHandler db = new DatabaseHandler(getApplicationContext());
@@ -244,12 +205,6 @@ public class BeanService extends IntentService {
                 task.setCode(code);
                 db.updateTask(task);
                 db.close();
-
-                //delete original file from phone
-//                if(file.exists()){
-//                    String filename = file.getName();
-//                    if(file.delete())System.out.println(filename+" deleted");
-//                }
 
                 //send results back to server
                 System.out.println("sending result to server: "+writePath);
@@ -274,12 +229,15 @@ public class BeanService extends IntentService {
         }
     }
 
-
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public void weightedQueueing(){
+
     }
 
     public void postData(File file,String taskID){
