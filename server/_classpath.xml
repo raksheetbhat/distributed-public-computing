@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry exported="true" kind="lib" path="H:/jar/javax.servlet-3.0.jar/javax.servlet-3.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="H:/jar/mysql-connector-java-5.1.40/mysql-connector-java-5.1.40/mysql-connector-java-5.1.40-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="H:/jar/cos-multipart.jar/cos-multipart.jar"/>
+	<classpathentry exported="true" kind="lib" path="H:/jar/gcm.server.jar/gcm.server.jar"/>
+	<classpathentry exported="true" kind="lib" path="H:/jar/java-json.jar"/>
+	<classpathentry exported="true" kind="lib" path="H:/jar/json-simple-1.1.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="H:/jar/gson-2.2.2.jar"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>

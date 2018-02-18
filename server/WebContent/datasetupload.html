@@ -1,0 +1,56 @@
+<html>  
+<head>
+<script>
+function validateForm() {
+    var x = document.forms["form"]["duedate"].value;
+    var curd=new Date();
+    var due=new Date(x);
+    if (x == "") {
+        alert("Due date is must");
+        return false;
+    }
+    if (due<curd) {
+    	alert("Date after plz");
+    	return false;
+    }	
+}
+</script>
+</head>
+<body>  
+<h1 align="center">Upload Dataset</h1>
+<br/>
+<br/>
+<br/>
+<br/>
+
+<div class="container" align="center">
+<form name="form" action="DatasetUpload" method="post" onsubmit="return validateForm()" enctype="multipart/form-data">  
+File : 
+<input type="file" name="fname" accept=".csv"/>
+<br/> 
+<br/>
+(Upload .csv files with headers)
+<br/>
+<br/>
+<br/>
+Task : 
+<select name="task">
+	<option value="sort">Sort</option>
+	<option value="clean">Clean</option>
+	<option value="search">Search</option>
+</select> 
+<br/>
+<br/>
+<br/>
+
+Due Date :
+<input type="date" name="duedate"/>
+<br/>
+<br/>
+<br/>
+
+<input type="submit" value="upload"/>  
+</form>
+</div>
+</body>  
+</html>
