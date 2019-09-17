@@ -6,3 +6,5 @@ Here we propose a novel distributed computing platform which enables any user to
 
 Our platform also provides decentralized public storage, using which users can upload any file securely. The platform uses threshold cryptography on the uploaded files to create encrypted shares, which reduces the redundancy required to maintain integrity, and also accounts for the unreliability of mobile device availability.
 We have run a DNA sequence similarity algorithm on our system, utilizing a number of Android phones of different makes. Our results show that this approach is a viable, cost-efficient alternative to traditional distributed computing resources for performing non-time bound computations on large datasets.
+
+Link to published paper: https://ieeexplore.ieee.org/document/8674111
